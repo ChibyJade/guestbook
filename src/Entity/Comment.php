@@ -10,6 +10,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Comment
 {
+    public function __toString(): string
+    {
+        return (string) $this->getEmail();
+    }
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
