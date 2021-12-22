@@ -111,14 +111,14 @@ DoctrineMigrations\\Version20211221221752	2021-12-21 22:23:19	124
 -- Name: comment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.comment_id_seq', 1, false);
+SELECT pg_catalog.setval('public.comment_id_seq', 3, true);
 
 
 --
 -- Name: conference_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.conference_id_seq', 1, false);
+SELECT pg_catalog.setval('public.conference_id_seq', 3, true);
 
 
 --
