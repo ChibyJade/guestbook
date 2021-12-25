@@ -55,7 +55,8 @@ CREATE TABLE public.conference (
     id integer NOT NULL,
     city character varying(255) NOT NULL,
     year character varying(4) NOT NULL,
-    is_international boolean NOT NULL
+    is_international boolean NOT NULL,
+    slug character varying(255) NOT NULL
 );
 
 
@@ -87,6 +88,13 @@ CREATE TABLE public.doctrine_migration_versions (
 --
 
 COPY public.comment (id, conference_id, author, text, email, created_at, photo_filename) FROM stdin;
+4	4	noob	lol......	git@gud.com	2022-01-24 01:12:00	\N
+5	4	jkml	terriblement nul	jkl@jkl.kolm	2022-01-24 05:26:00	\N
+6	4	hjkl	perte de temps........	hljk@jik.jklm	2022-01-24 05:26:00	\N
+7	4	huli	EXCELLENT!!!!!!	hlkj@jkl.jklm	2022-11-29 05:26:00	\N
+8	4	hjkml	jklmj	hljk@jik.jklm	2021-12-24 22:40:04	\N
+9	6	hjklh	jklh	lhjkjkl@jk.hlk	2021-12-25 22:27:08	\N
+10	6	fghj,	gfj	fghj@jio.hjmk	2021-12-25 22:36:33	98628eb40d2e.png
 \.
 
 
@@ -94,7 +102,10 @@ COPY public.comment (id, conference_id, author, text, email, created_at, photo_f
 -- Data for Name: conference; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.conference (id, city, year, is_international) FROM stdin;
+COPY public.conference (id, city, year, is_international, slug) FROM stdin;
+4	new 1	2021	f	new 1-2021
+5	old 2	2019	f	old 2-2019
+6	magnifique slug incoming	123	f	magnifique slug lol
 \.
 
 
@@ -104,6 +115,8 @@ COPY public.conference (id, city, year, is_international) FROM stdin;
 
 COPY public.doctrine_migration_versions (version, executed_at, execution_time) FROM stdin;
 DoctrineMigrations\\Version20211221221752	2021-12-21 22:23:19	124
+DoctrineMigrations\\Version20211224224211	2021-12-24 22:49:03	61
+DoctrineMigrations\\Version20211225095354	2021-12-25 09:54:19	344
 \.
 
 
@@ -111,14 +124,14 @@ DoctrineMigrations\\Version20211221221752	2021-12-21 22:23:19	124
 -- Name: comment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.comment_id_seq', 3, true);
+SELECT pg_catalog.setval('public.comment_id_seq', 10, true);
 
 
 --
 -- Name: conference_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.conference_id_seq', 3, true);
+SELECT pg_catalog.setval('public.conference_id_seq', 6, true);
 
 
 --
@@ -150,6 +163,13 @@ ALTER TABLE ONLY public.doctrine_migration_versions
 --
 
 CREATE INDEX idx_9474526c604b8382 ON public.comment USING btree (conference_id);
+
+
+--
+-- Name: uniq_911533c8989d9b62; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uniq_911533c8989d9b62 ON public.conference USING btree (slug);
 
 
 --
