@@ -16,7 +16,7 @@
     <body>
         <header>
             <h1><a href="{{ path('homepage') }}">Guestbook</a></h1>
-            {{ render_esi(path('conference_header')) }}
+            {{ render(path('conference_header')) }}
             <hr />
         </header>
         {% block body %}{% endblock %}
