@@ -5,6 +5,8 @@ namespace App\Tests\Controller;
 use App\Repository\CommentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Bridge\Twig\Mime\NotificationEmail;
+use Symfony\Component\Mailer\MailerInterface;
 
 class ConferenceControllerTest extends WebTestCase
 {
@@ -35,7 +37,7 @@ class ConferenceControllerTest extends WebTestCase
         self::$container->get(EntityManagerInterface::class)->flush();
 
         $client->followRedirect();
-        $this->assertSelectorExists('div:contains("There are 3 comments")');
+        $this->assertSelectorExists('div:contains("There are 2 comments")');
     }
 
     public function testConferencePage()
@@ -47,6 +49,6 @@ class ConferenceControllerTest extends WebTestCase
         $this->assertPageTitleContains('Amsterdam');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('h2', 'Amsterdam 2019');
-        $this->assertSelectorExists('div:contains("There are 2 comments")');
+        $this->assertSelectorExists('div:contains("There are 1 comments")');
     }
 }
