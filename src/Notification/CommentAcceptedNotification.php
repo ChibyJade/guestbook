@@ -15,24 +15,22 @@ use Symfony\Component\Notifier\Notification\Notification;
 use Symfony\Component\Notifier\Recipient\EmailRecipientInterface;
 use Symfony\Component\Notifier\Recipient\RecipientInterface;
 
-class CommentReviewNotification extends Notification implements EmailNotificationInterface, ChatNotificationInterface
+class CommentAcceptedNotification extends Notification implements EmailNotificationInterface, ChatNotificationInterface
 {
     private $comment;
-    private $reviewUrl;
 
-    public function __construct(Comment $comment, string $reviewUrl)
+    public function __construct(Comment $comment)
     {
         $this->comment = $comment;
-        $this->reviewUrl = $reviewUrl;
 
-        parent::__construct('New comment posted lol');
+        parent::__construct('Comment accepted!');
     }
 
     public function asEmailMessage(EmailRecipientInterface $recipient, string $transport = null): ?EmailMessage
     {
         $message = EmailMessage::fromNotification($this, $recipient, $transport);
         $message->getMessage()
-            ->htmlTemplate('emails/comment_notification.html.twig')
+            ->htmlTemplate('emails/comment_accepted_notification.html.twig')
             ->context(['comment' => $this->comment]);
 
         return $message;
@@ -53,11 +51,7 @@ class CommentReviewNotification extends Notification implements EmailNotificatio
                 ->block((new SlackSectionBlock())->text($this->getSubject()))
                 ->block(new SlackDividerBlock())
                 ->block((new SlackSectionBlock())
-                        ->text(sprintf('%s (%s) says: %s', $this->comment->getAuthor(), $this->comment->getEmail(), $this->comment->getText()))
-                )
-                ->block((new SlackActionsBlock())
-                        ->button('Accept', $this->reviewUrl, 'primary')
-                        ->button('Reject', $this->reviewUrl . '?reject=1', 'danger')
+                        ->text(sprintf('Comment accepted! From %s (%s): %s', $this->comment->getAuthor(), $this->comment->getEmail(), $this->comment->getText()))
                 )
         );
 

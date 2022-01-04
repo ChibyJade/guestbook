@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Workflow\Registry;
 use Twig\Environment;
 
@@ -47,7 +48,7 @@ class AdminController extends AbstractController
         $this->entityManager->flush();
 
         if ($accepted) {
-            $this->bus->dispatch(new CommentMessage($comment->getId()));
+            $this->bus->dispatch(new CommentMessage($comment->getId(), '', [], $comment->getEmail()));
         }
 
         return $this->render('admin/review.html.twig', [
