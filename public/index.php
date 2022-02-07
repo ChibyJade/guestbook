@@ -12,7 +12,9 @@ if ($_SERVER['APP_MAINTENANCE'] ?? $_ENV['APP_MAINTENANCE'] ?? false) {
     die;
 }
 
-(new Dotenv())->bootEnv(dirname(__DIR__) . '/.env');
+if (!isset($_SERVER['APP_ENV']) || $_SERVER['APP_ENV'] != "prod") {
+    (new Dotenv())->bootEnv(dirname(__DIR__) . '/.env');
+}
 
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);
