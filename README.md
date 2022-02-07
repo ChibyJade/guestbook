@@ -1,6 +1,10 @@
 Guestbook
 ========================
 
+URL
+------------
+https://guestbook.jadexau.fr
+
 Environment variables
 ------------
 
