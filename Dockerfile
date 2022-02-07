@@ -59,7 +59,7 @@ COPY . /app
 COPY --from=builder /app/public/build /app/public/build
 
 RUN mkdir -p var && \
-    composer install --prefer-dist --optimize-autoloader --classmap-authoritative --no-interaction --no-ansi --no-dev && \
+    composer install --prefer-dist --optimize-autoloader --classmap-authoritative --no-interaction --no-ansi && \
     chmod +x bin/console && \
     bin/console cache:clear --no-warmup && \
     bin/console cache:warmup && \
