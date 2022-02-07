@@ -51,7 +51,7 @@ build-docker:
   script:
     - echo ${DOCKER_PWD} | docker login -u ${DOCKER_LOGIN} --password-stdin
     - docker info
-    - docker build -t ${IMAGE_NAME}:${IMAGE_TAG} --build-arg MAILER_DSN --build-arg APP_VERSION --build-arg GIT_COMMIT --build-arg MESSENGER_TRANSPORT_DSN --build-arg APP_MAINTENANCE --build-arg APP_ENV --build-arg POSTGRES_SERVER_VERSION --build-arg POSTGRES_CHARSET --build-arg POSTGRES_DRIVER --build-arg POSTGRES_HOST --build-arg POSTGRES_PORT .
+    - docker build -t ${IMAGE_NAME}:${IMAGE_TAG} --build-arg CORS_ALLOW_ORIGIN --build-arg MAILER_DSN --build-arg APP_VERSION --build-arg GIT_COMMIT --build-arg MESSENGER_TRANSPORT_DSN --build-arg APP_MAINTENANCE --build-arg APP_ENV --build-arg POSTGRES_SERVER_VERSION --build-arg POSTGRES_CHARSET --build-arg POSTGRES_DRIVER --build-arg POSTGRES_HOST --build-arg POSTGRES_PORT .
     - chmod +x ./ci/docker-tag.sh && ./ci/docker-tag.sh
     - docker push ${IMAGE_NAME}
 
