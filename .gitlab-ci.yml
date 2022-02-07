@@ -55,27 +55,27 @@ build-docker:
     - chmod +x ./ci/docker-tag.sh && ./ci/docker-tag.sh
     - docker push ${IMAGE_NAME}
 
-security-checker:
-  stage: SecurityChecker
-  needs: ["build-php"]
-  only:
-    - main
-    - tests
-  image: jakzal/phpqa:php8.0-alpine
-  script:
-    - local-php-security-checker  --path=./composer.lock
-  allow_failure: false
+# security-checker:
+#   stage: SecurityChecker
+#   needs: ["build-php"]
+#   only:
+#     - main
+#     - tests
+#   image: jakzal/phpqa:php8.0-alpine
+#   script:
+#     - local-php-security-checker  --path=./composer.lock
+#   allow_failure: false
 
-phpcs:
-  stage: CodingStandards
-  needs: ["build-php"]
-  only:
-    - main
-    - tests
-  image: jakzal/phpqa:php8.0-alpine
-  script:
-    - phpcs -v --standard=PSR12 --ignore=./src/Kernel.php ./src
-  allow_failure: false
+# phpcs:
+#   stage: CodingStandards
+#   needs: ["build-php"]
+#   only:
+#     - main
+#     - tests
+#   image: jakzal/phpqa:php8.0-alpine
+#   script:
+#     - phpcs -v --standard=PSR12 --ignore=./src/Kernel.php ./src
+#   allow_failure: false
 
 phpstan:
   stage: CodingStandards
@@ -99,21 +99,21 @@ twig-lint:
     - twig-lint lint ./templates
   allow_failure: false
 
-phpunit:
-  stage: UnitTests
-  needs: ["build-php"]
-  only:
-    - main
-    - tests
-  image: chibyjade/php-8.0:latest
-  services:
-    - postgres:13-alpine
-  variables:
-    POSTGRES_HOST_AUTH_METHOD: trust
-    DATABASE_URL: 'postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB?serverVersion=13&charset=utf8' 
-  script:
-    - make tests
-  allow_failure: false  
+# phpunit:
+#   stage: UnitTests
+#   needs: ["build-php"]
+#   only:
+#     - main
+#     - tests
+#   image: chibyjade/php-8.0:latest
+#   services:
+#     - postgres:13-alpine
+#   variables:
+#     POSTGRES_HOST_AUTH_METHOD: trust
+#     DATABASE_URL: 'postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB?serverVersion=13&charset=utf8' 
+#   script:
+#     - make tests
+#   allow_failure: false  
 
 
 deploy:
