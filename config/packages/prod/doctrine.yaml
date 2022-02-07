@@ -1,4 +1,13 @@
 doctrine:
+    dbal: 
+        driver: '%env(string:POSTGRES_DRIVER)%'
+        server_version: '%env(string:POSTGRES_SERVER_VERSION)%'
+        charset: '%env(string:POSTGRES_CHARSET)%'
+        dbname: '%env(string:POSTGRES_DB)%'
+        host: '%env(string:POSTGRES_HOST)%'
+        port: '%env(string:POSTGRES_PORT)%'
+        user: '%env(string:POSTGRES_USER)%'  
+        password: '%env(string:POSTGRES_PASSWORD)%'
     orm:
         auto_generate_proxy_classes: false
         query_cache_driver:
