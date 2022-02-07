@@ -1,0 +1,135 @@
+stages:
+  - build
+  - SecurityChecker
+  - CodingStandards
+  - UnitTests
+  - deploy
+
+cache:
+  paths:
+  - vendor/
+  - node_modules/
+
+build-php:
+  stage: "build"
+  only:
+    - main
+    - tests
+  artifacts:
+    paths:
+      - ./
+  image: chibyjade/php-8.0:latest   
+  script:
+    - APP_ENV=test composer install --prefer-dist --optimize-autoloader --classmap-authoritative --no-interaction --no-ansi
+    - mkdir -p var && chmod -R 777 var && chmod +x -R bin
+
+build-js:
+  stage: "build"
+  only:
+    - main
+    - tests
+  artifacts:
+    paths:
+      - ./
+  image: node:current-alpine3.15
+  script:
+    - yarn install
+    - yarn build
+
+build-docker:
+  stage: "build"
+  only:
+    - main
+  image: docker:20.10.12-alpine3.15
+  services:
+    - docker:20.10.12-dind-alpine3.15
+  variables:
+    IMAGE_NAME: chibyjade/guestbook
+    IMAGE_TAG: ${CI_PIPELINE_ID}
+    APP_VERSION: ${IMAGE_TAG}
+    GIT_COMMIT: ${CI_COMMIT_SHA}
+  script:
+    - echo ${DOCKER_PWD} | docker login -u ${DOCKER_LOGIN} --password-stdin
+    - docker info
+    - docker build -t ${IMAGE_NAME}:${IMAGE_TAG} --build-arg MAILER_DSN --build-arg APP_VERSION --build-arg GIT_COMMIT --build-arg MESSENGER_TRANSPORT_DSN --build-arg APP_MAINTENANCE --build-arg APP_ENV --build-arg POSTGRES_SERVER_VERSION --build-arg POSTGRES_CHARSET --build-arg POSTGRES_DRIVER --build-arg POSTGRES_HOST --build-arg POSTGRES_PORT .
+    - chmod +x ./ci/docker-tag.sh && ./ci/docker-tag.sh
+    - docker push ${IMAGE_NAME}
+
+security-checker:
+  stage: SecurityChecker
+  needs: ["build-php"]
+  only:
+    - main
+    - tests
+  image: jakzal/phpqa:php8.0-alpine
+  script:
+    - local-php-security-checker  --path=./composer.lock
+  allow_failure: false
+
+phpcs:
+  stage: CodingStandards
+  needs: ["build-php"]
+  only:
+    - main
+    - tests
+  image: jakzal/phpqa:php8.0-alpine
+  script:
+    - phpcs -v --standard=PSR12 --ignore=./src/Kernel.php ./src
+  allow_failure: false
+
+phpstan:
+  stage: CodingStandards
+  needs: ["build-php"]
+  only:
+    - main
+    - tests
+  image: jakzal/phpqa:php8.0-alpine
+  script:
+    - phpstan analyse ./src
+  allow_failure: false
+
+twig-lint:
+  needs: ["build-php"]
+  stage: CodingStandards
+  only:
+    - main
+    - tests
+  image: jakzal/phpqa:php8.0-alpine
+  script:
+    - twig-lint lint ./templates
+  allow_failure: false
+
+phpunit:
+  stage: UnitTests
+  needs: ["build-php"]
+  only:
+    - main
+    - tests
+  image: chibyjade/php-8.0:latest
+  services:
+    - postgres:13-alpine
+  variables:
+    POSTGRES_HOST_AUTH_METHOD: trust
+    DATABASE_URL: 'postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB?serverVersion=13&charset=utf8' 
+  script:
+    - make tests
+  allow_failure: false  
+
+
+deploy:
+  stage: "deploy"
+  only:
+    - main
+  image: alpine:3.15
+  script:
+    - 'which ssh-agent || ( apk -U upgrade && apk add openssh-client )'
+    - mkdir -p ~/.ssh
+    - eval $(ssh-agent -s)
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\nStrictHostKeyChecking no\n" > ~/.ssh/config'
+    - ssh-add <(echo "$DEPLOYER_PK")
+    - scp -p docker-compose.yml $DEPLOYER_USERNAME@$PRODUCTION_SERVER_IP:$PRODUCTION_SERVER_PATH
+    - scp -p docker-compose.prod.yml $DEPLOYER_USERNAME@$PRODUCTION_SERVER_IP:$PRODUCTION_SERVER_PATH
+    - scp -p ci/deploy.sh $DEPLOYER_USERNAME@$PRODUCTION_SERVER_IP:$PRODUCTION_SERVER_PATH
+    - scp -p ci/run.sh $DEPLOYER_USERNAME@$PRODUCTION_SERVER_IP:$PRODUCTION_SERVER_PATH
+    - ssh $DEPLOYER_USERNAME@$PRODUCTION_SERVER_IP "cd $PRODUCTION_SERVER_PATH && chmod +x ./deploy.sh && chmod +x ./run.sh"
+    - chmod +x ci/ssh.sh && ci/ssh.sh

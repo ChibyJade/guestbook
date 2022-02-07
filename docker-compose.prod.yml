@@ -1,0 +1,38 @@
+version: "3.9"
+
+networks:
+  web:
+    external: true
+  internal:
+    external: false
+
+services:
+  guestbook:
+    image: chibyjade/guestbook:latest
+    environment:
+      APP_MAINTENANCE: ${APP_MAINTENANCE:-0}
+      APP_ENV: ${APP_ENV:-prod}
+      APP_SECRET: ${APP_SECRET:-secret}
+      POSTGRES_DB: ${POSTGRES_DB:-main}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-main}
+      POSTGRES_USER: ${POSTGRES_USER:-main}
+      SLACK_DSN: ${SLACK_DSN:-dsn}
+    networks:
+      - internal
+      - web
+    restart: always
+    volumes:
+      - /app/var/logs
+    labels:
+      - "traefik.http.routers.portfolio.rule=Host(`${APP_URL}`)"
+      - "traefik.http.routers.portfolio.tls=true"
+      - "traefik.http.routers.portfolio.tls.certresolver=lets-encrypt"
+      - "traefik.port=80"
+
+  database:
+    ports:
+      - "5432"
+    networks:
+      - internal
+    labels:
+      - traefik.enable=false
